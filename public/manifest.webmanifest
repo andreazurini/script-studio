@@ -1,0 +1,19 @@
+{
+  "name": "Script Studio",
+  "short_name": "Script Studio",
+  "description": "Libreria di copioni e teleprompter per reel, video lunghi e lezioni.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f3f2ee",
+  "theme_color": "#10110f",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
