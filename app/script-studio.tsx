@@ -431,7 +431,8 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
       <main className="app-shell">
         <section className="workspace">
           <div className="page library-page">
-            <p className="empty">Nessuno script ancora. Crea il primo con &quot;Nuovo script&quot;.</p>
+            <p className="empty">Nessuno script ancora.</p>
+            <button className="primary" onClick={createScript}><span>＋</span><b>Nuovo script</b></button>
           </div>
         </section>
       </main>

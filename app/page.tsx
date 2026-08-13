@@ -2,6 +2,8 @@
 import { listScripts } from "@/app/actions/scripts";
 import { ScriptStudio } from "@/app/script-studio";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const rows = await listScripts();
   const initialScripts = rows.map((row) => ({
