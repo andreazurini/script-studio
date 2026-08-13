@@ -11,9 +11,10 @@ export async function listScripts(): Promise<ScriptRow[]> {
   return db.select().from(scripts).orderBy(asc(scripts.createdAt));
 }
 
-export async function createScript(input: Partial<ScriptInput>): Promise<ScriptRow> {
-  const parsed = parseScriptInput(input) as ScriptInput;
-  const [row] = await db.insert(scripts).values(parsed).returning();
+export async function createScript(input: Partial<ScriptInput> & { id?: string }): Promise<ScriptRow> {
+  const { id, ...rest } = input;
+  const parsed = parseScriptInput(rest) as ScriptInput;
+  const [row] = await db.insert(scripts).values(id ? { id, ...parsed } : parsed).returning();
   return row;
 }
 

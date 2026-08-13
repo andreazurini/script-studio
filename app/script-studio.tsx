@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createScript as createScriptAction, updateScript as updateScriptAction, type ScriptRow } from "@/app/actions/scripts";
+import { createScript as createScriptAction, updateScript as updateScriptAction } from "@/app/actions/scripts";
 
 type Page = "library" | "editor" | "connections";
 type Format = "Reel" | "Video lungo" | "Lezione";
@@ -58,20 +58,7 @@ function formatForVoice(body: string) {
 }
 
 function formatUpdated(iso: string) {
-  return new Intl.DateTimeFormat("it-IT", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
-}
-
-function toClientScript(row: ScriptRow): Script {
-  return {
-    id: row.id,
-    title: row.title,
-    body: row.body,
-    format: row.format as Format,
-    status: row.status as Status,
-    source: row.source,
-    tags: row.tags,
-    updatedAt: new Date(row.updatedAt).toISOString(),
-  };
+  return new Intl.DateTimeFormat("it-IT", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Rome" }).format(new Date(iso));
 }
 
 export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
@@ -253,11 +240,11 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
 
   function updateActive(patch: Partial<Script>) {
     const current = active;
-    setScripts((items) => items.map((script) => script.id === current.id ? { ...script, ...patch, updatedAt: new Date().toISOString() } : script));
+    const optimisticUpdatedAt = new Date().toISOString();
+    setScripts((items) => items.map((script) => script.id === current.id ? { ...script, ...patch, updatedAt: optimisticUpdatedAt } : script));
     updateScriptAction(current.id, patch)
       .then((row) => {
-        const updated = toClientScript(row);
-        setScripts((items) => items.map((script) => script.id === updated.id ? updated : script));
+        setScripts((items) => items.map((script) => script.id === row.id ? { ...script, updatedAt: new Date(row.updatedAt).toISOString() } : script));
       })
       .catch(() => setToast("Salvataggio non riuscito. Riprova."));
   }
@@ -284,19 +271,17 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
     if (document.fullscreenElement) document.exitFullscreen?.().catch(() => undefined);
   }
   function createScript() {
-    const draft = { title: "Nuovo copione", body: "Scrivi qui la prima frase.\n\n[PAUSA BREVE]\n\nContinua il tuo copione…", format: "Reel" as Format, status: "Bozza" as Status, source: "Scritto in Script Studio", tags: [] as string[] };
-    const tempId = `pending-${Date.now()}`;
-    setScripts((items) => [{ id: tempId, ...draft, updatedAt: new Date().toISOString() }, ...items]);
-    setActiveId(tempId);
+    const id = crypto.randomUUID();
+    const draft = { id, title: "Nuovo copione", body: "Scrivi qui la prima frase.\n\n[PAUSA BREVE]\n\nContinua il tuo copione…", format: "Reel" as Format, status: "Bozza" as Status, source: "Scritto in Script Studio", tags: [] as string[] };
+    setScripts((items) => [{ ...draft, updatedAt: new Date().toISOString() }, ...items]);
+    setActiveId(id);
     setPage("editor");
     createScriptAction(draft)
       .then((row) => {
-        const created = toClientScript(row);
-        setScripts((items) => items.map((item) => item.id === tempId ? created : item));
-        setActiveId(created.id);
+        setScripts((items) => items.map((item) => item.id === row.id ? { ...item, updatedAt: new Date(row.updatedAt).toISOString() } : item));
       })
       .catch(() => {
-        setScripts((items) => items.filter((item) => item.id !== tempId));
+        setScripts((items) => items.filter((item) => item.id !== id));
         setToast("Creazione non riuscita. Riprova.");
       });
   }
@@ -439,6 +424,18 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
   function recordingFilename() {
     const safeTitle = active.title.toLocaleLowerCase("it").replace(/[^a-z0-9àèéìòù]+/gi, "-").replace(/^-|-$/g, "");
     return `${safeTitle || "script-studio"}-${new Date().toISOString().slice(0, 10)}.${recordingMime.includes("mp4") ? "mp4" : "webm"}`;
+  }
+
+  if (!active) {
+    return (
+      <main className="app-shell">
+        <section className="workspace">
+          <div className="page library-page">
+            <p className="empty">Nessuno script ancora. Crea il primo con &quot;Nuovo script&quot;.</p>
+          </div>
+        </section>
+      </main>
+    );
   }
 
   return (
