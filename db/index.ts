@@ -1,4 +1,3 @@
-// db/index.ts
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "./schema";
@@ -13,6 +12,15 @@ function requireDatabaseUrl() {
   return url;
 }
 
-const pool = new Pool({ connectionString: requireDatabaseUrl() });
+const globalForDb = globalThis as unknown as { pool?: Pool };
+
+const pool =
+  globalForDb.pool ?? new Pool({ connectionString: requireDatabaseUrl(), max: 5 });
+
+if (process.env.NODE_ENV !== "production") globalForDb.pool = pool;
+
+pool.on("error", (error) => {
+  console.error("Errore imprevisto dal pool Postgres:", error);
+});
 
 export const db = drizzle(pool, { schema });
