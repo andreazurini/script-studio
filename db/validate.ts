@@ -1,8 +1,7 @@
-export type ScriptFormat = "Reel" | "Video lungo" | "Lezione";
-export type ScriptStatus = "Bozza" | "Da rivedere" | "Pronto";
-
-const FORMATS: ScriptFormat[] = ["Reel", "Video lungo", "Lezione"];
-const STATUSES: ScriptStatus[] = ["Bozza", "Da rivedere", "Pronto"];
+export const FORMATS = ["Reel", "Video lungo", "Lezione"] as const;
+export const STATUSES = ["Bozza", "Da rivedere", "Pronto"] as const;
+export type ScriptFormat = (typeof FORMATS)[number];
+export type ScriptStatus = (typeof STATUSES)[number];
 
 export type ScriptInput = {
   title: string;
