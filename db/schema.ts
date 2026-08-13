@@ -1,5 +1,5 @@
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { FORMATS, STATUSES } from "./validate";
+import { FORMATS, STATUSES } from "./validate.ts";
 
 export const scripts = pgTable("scripts", {
   id: uuid("id").primaryKey().defaultRandom(),

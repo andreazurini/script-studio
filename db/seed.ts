@@ -1,5 +1,5 @@
-import { db } from "./index";
-import { scripts } from "./schema";
+import { db } from "./index.ts";
+import { scripts } from "./schema.ts";
 
 const seedScripts = [
   {
