@@ -207,14 +207,16 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
 
   useEffect(() => {
     const onSearchShortcut = (event: KeyboardEvent) => {
-      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "k") return;
+      if (!(event.metaKey || event.ctrlKey) || event.code !== "KeyK") return;
+      if (event.repeat) return;
+      if (teleprompter) return; // don't hijack focus out of the modal
       event.preventDefault();
       setPage("library");
       window.setTimeout(() => searchInputRef.current?.focus(), 0);
     };
     window.addEventListener("keydown", onSearchShortcut);
     return () => window.removeEventListener("keydown", onSearchShortcut);
-  }, []);
+  }, [teleprompter]);
 
   useEffect(() => {
     const nav = navigator as Navigator & { wakeLock?: { request: (type: "screen") => Promise<{ release: () => Promise<void> }> } };
