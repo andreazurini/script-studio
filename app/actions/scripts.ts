@@ -31,3 +31,28 @@ export async function updateScript(
   if (!row) throw new Error(`Script ${id} non trovato.`);
   return row;
 }
+
+export async function deleteScript(id: string): Promise<void> {
+  await db.delete(scripts).where(eq(scripts.id, id));
+}
+
+export async function duplicateScript(id: string): Promise<ScriptRow> {
+  const [original] = await db.select().from(scripts).where(eq(scripts.id, id));
+  if (!original) throw new Error(`Script ${id} non trovato.`);
+  // Values come from an existing valid row, so re-running parseScriptInput is
+  // unnecessary — the only change is the title suffix, and validate.ts has no
+  // max length on title (just a non-empty check), so it can't push the copy
+  // past a constraint the original already satisfied.
+  const [row] = await db
+    .insert(scripts)
+    .values({
+      title: `${original.title} (copia)`,
+      body: original.body,
+      format: original.format,
+      status: original.status,
+      source: original.source,
+      tags: original.tags,
+    })
+    .returning();
+  return row;
+}
