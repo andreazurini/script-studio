@@ -566,7 +566,7 @@ export function ScriptStudio({ initialScripts, userEmail = null }: { initialScri
         <div className="sidebar-bottom">
           <article className="mcp-mini"><header><i/><strong>MCP</strong><small>DESIGN TARGET</small></header><p>Claude e altri agenti possono consegnare nuove bozze.</p><button onClick={() => setPage("connections")}>Apri ingressi <span>→</span></button></article>
           <button className="install" onClick={installApp}>↓ <span>Installa l’app</span></button>
-          <div className="profile"><span>AZ</span><div><strong>Andrea Zurini</strong><small>Workspace personale</small></div><i>⚙</i></div>
+          <button className="profile" onClick={() => setPage("account")} aria-current={page === "account" ? "page" : undefined}><span>{initialsFromEmail(userEmail)}</span><div><strong>{userEmail ?? "Andrea Zurini"}</strong><small>Workspace personale</small></div><i>⚙</i></button>
         </div>
       </aside>
 

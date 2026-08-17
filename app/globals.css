@@ -45,7 +45,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .mcp-mini button { padding: 0; display: flex; gap: 6px; border: 0; background: transparent; color: var(--yellow); font-size: 10px; font-weight: 700; }
 .install { height: 41px; padding: 0 13px; display: flex; align-items: center; gap: 10px; border: 1px solid #30322d; border-radius: 11px; background: transparent; color: #b4b6ae; font-size: 11px; }
 .install:hover { color: white; border-color: #494c44; }
-.profile { min-height: 52px; padding: 8px 9px; display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 9px; border-top: 1px solid #292b27; }
+.profile { min-height: 52px; padding: 8px 9px; display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 9px; border: 0; border-top: 1px solid #292b27; width: 100%; background: transparent; text-align: left; }
+.profile:hover, .profile[aria-current] { background: #23241f; }
 .profile > span { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 10px; background: #30312d; font-size: 9px; font-weight: 760; }
 .profile > div { min-width: 0; display: grid; }
 .profile strong { overflow: hidden; font-size: 10px; white-space: nowrap; text-overflow: ellipsis; }
