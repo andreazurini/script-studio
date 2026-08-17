@@ -515,7 +515,7 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
               <input className="title-field" value={active.title} onChange={(event) => updateActive({ title: event.target.value })}/>
               <div className="doc-stats"><span>{words(active.body)} parole</span><i/><span>{duration(active.body)} a 135 parole/min</span><i/><span>Postgres</span></div>
               <textarea value={active.body} onChange={(event) => updateActive({ body: event.target.value })} spellCheck/>
-              <footer><span><kbd>⌘</kbd><kbd>S</kbd> Salva</span><span>Le righe tra [parentesi] sono cue e non vengono recitate.</span></footer>
+              <footer><span>☁ Salvataggio automatico</span><span>Le righe tra [parentesi] sono cue e non vengono recitate.</span></footer>
             </section>
             <aside className="assistant-panel">
               <header><span>✦</span><div><small>ASSISTENTE</small><h3>Rifinisci senza perdere la voce</h3></div></header>
