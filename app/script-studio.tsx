@@ -88,6 +88,10 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
   const readerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const teleprompterRootRef = useRef<HTMLDivElement>(null);
+  const teleprompterCloseRef = useRef<HTMLButtonElement>(null);
+  const recordingReviewRef = useRef<HTMLDivElement>(null);
+  const recordingReviewCloseRef = useRef<HTMLButtonElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const recordingChunks = useRef<Blob[]>([]);
@@ -154,6 +158,14 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
     const timer = window.setTimeout(() => setToast(""), 2800);
     return () => window.clearTimeout(timer);
   }, [toast]);
+  useEffect(() => {
+    if (!teleprompter) return;
+    teleprompterCloseRef.current?.focus();
+  }, [teleprompter]);
+  useEffect(() => {
+    if (!recordingUrl) return;
+    recordingReviewCloseRef.current?.focus();
+  }, [recordingUrl]);
 
   useEffect(() => {
     if (!recording) return;
@@ -183,6 +195,26 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
       if (event.key === "ArrowDown") setSpeed((value) => Math.max(55, value - 5));
       if (event.key.toLowerCase() === "m") setMirrored((value) => !value);
       if (event.key.toLowerCase() === "f") document.documentElement.requestFullscreen?.().catch(() => undefined);
+      if (event.key === "Tab") {
+        const container = recordingUrl ? recordingReviewRef.current : teleprompterRootRef.current;
+        if (!container) return;
+        const focusable = Array.from(
+          container.querySelectorAll<HTMLElement>('button:not(:disabled), [href], input, [tabindex]:not([tabindex="-1"])')
+        );
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const activeElement = document.activeElement;
+        if (event.shiftKey) {
+          if (activeElement === first || !container.contains(activeElement)) {
+            event.preventDefault();
+            last.focus();
+          }
+        } else if (activeElement === last || !container.contains(activeElement)) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
       if (event.key === "Escape") {
         if (recording) {
           setPlaying(false);
@@ -203,7 +235,7 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [recording, teleprompter]);
+  }, [recording, recordingUrl, teleprompter]);
 
   useEffect(() => {
     const onSearchShortcut = (event: KeyboardEvent) => {
@@ -550,9 +582,9 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
 
       <nav className="mobile-nav">{navItems.map((item) => <button key={item.page} className={page === item.page ? "active" : ""} aria-current={page === item.page ? "page" : undefined} onClick={() => setPage(item.page)}><i>{item.icon}</i><span>{item.label === "Connessioni" ? "Ingressi" : item.label}</span></button>)}<button className="new-mobile" onClick={createScript}>＋</button></nav>
 
-      {teleprompter && <div className="teleprompter" role="dialog" aria-modal="true" aria-label={`Teleprompter: ${active.title}`}>
+      {teleprompter && <div className="teleprompter" role="dialog" aria-modal="true" aria-label={`Teleprompter: ${active.title}`} ref={teleprompterRootRef}>
         <header className="tele-bar">
-          <div><button onClick={closeTeleprompter} aria-label={recording ? "Ferma la registrazione" : "Chiudi teleprompter"}>×</button><span><small>{recording ? "● REGISTRAZIONE" : "IN LETTURA"}</small><strong>{active.title}</strong></span></div>
+          <div><button ref={teleprompterCloseRef} onClick={closeTeleprompter} aria-label={recording ? "Ferma la registrazione" : "Chiudi teleprompter"}>×</button><span><small>{recording ? "● REGISTRAZIONE" : "IN LETTURA"}</small><strong>{active.title}</strong></span></div>
           <section>
             <label><span>Velocità</span><input aria-label="Velocità di scorrimento" type="range" min="55" max="220" value={speed} onChange={(event) => setSpeed(Number(event.target.value))}/><b>{speed}</b><small>ppm</small></label>
             <div className="size-control" role="group" aria-label="Dimensione del testo"><button onClick={() => setFontSize((value) => Math.max(30, value - 6))} aria-label="Riduci il testo">A−</button><input aria-label="Dimensione del testo" type="range" min="30" max="112" step="2" value={fontSize} onChange={(event) => setFontSize(Number(event.target.value))}/><output>{fontSize}px</output><button onClick={() => setFontSize((value) => Math.min(112, value + 6))} aria-label="Ingrandisci il testo">A＋</button></div>
@@ -579,7 +611,7 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
           <section className="transport"><button className="play-control" onClick={() => setPlaying((value) => !value)} aria-label={playing ? "Metti in pausa" : "Avvia scorrimento"}>{playing ? "Ⅱ" : "▶"}</button><button className={`record-control ${recording ? "is-recording" : ""}`} onClick={recording ? stopRecording : beginRecording} disabled={countdown !== null}><i/>{recording ? "Ferma" : "Registra"}</button></section>
           <aside><strong>{recording ? recordingClock(recordingSeconds) : `${Math.round(progress)}%`}</strong><small>{recording ? "REGISTRAZIONE ATTIVA" : cameraOn ? "CAMERA PRONTA" : playing ? "SCORRIMENTO ATTIVO" : "IN PAUSA"}</small></aside>
         </footer>
-        {recordingUrl && <div className="recording-review" role="dialog" aria-modal="true" aria-label="Registrazione completata"><article><header><div><small>RIPRESA COMPLETATA</small><h2>Il video è pronto</h2></div><button onClick={() => { clearRecording(); stopCamera(); }}>×</button></header><video src={recordingUrl} controls playsInline/><footer><button className="secondary" onClick={clearRecording}>↻ Nuova ripresa</button><a className="primary" href={recordingUrl} download={recordingFilename()}>↓ Scarica video</a></footer><p>Il file resta su questo dispositivo finché non lo scarichi o avvii una nuova ripresa.</p></article></div>}
+        {recordingUrl && <div className="recording-review" role="dialog" aria-modal="true" aria-label="Registrazione completata" ref={recordingReviewRef}><article><header><div><small>RIPRESA COMPLETATA</small><h2>Il video è pronto</h2></div><button ref={recordingReviewCloseRef} onClick={() => { clearRecording(); stopCamera(); }}>×</button></header><video src={recordingUrl} controls playsInline/><footer><button className="secondary" onClick={clearRecording}>↻ Nuova ripresa</button><a className="primary" href={recordingUrl} download={recordingFilename()}>↓ Scarica video</a></footer><p>Il file resta su questo dispositivo finché non lo scarichi o avvii una nuova ripresa.</p></article></div>}
       </div>}
       {toast && <div className="toast">✓ <span>{toast}</span></div>}
     </main>
