@@ -8,7 +8,7 @@ import {
   updateScript as updateScriptAction,
 } from "@/app/actions/scripts";
 
-type Page = "library" | "editor" | "connections";
+type Page = "library" | "editor" | "connections" | "account";
 type Format = "Reel" | "Video lungo" | "Lezione";
 type Status = "Bozza" | "Da rivedere" | "Pronto";
 type Script = {
@@ -27,6 +27,18 @@ const navItems: Array<{ page: Page; icon: string; label: string }> = [
   { page: "editor", icon: "✎", label: "Editor" },
   { page: "connections", icon: "⌁", label: "Connessioni" },
 ];
+
+const pageTitles: Record<Page, string> = {
+  library: "La tua voce, pronta.",
+  editor: "Editor di recitazione",
+  connections: "Connessioni e automazioni",
+  account: "Il tuo account",
+};
+
+const DEFAULT_FONT_SIZE = 58;
+const DEFAULT_SPEED = 118;
+const DEFAULT_SHOW_CUES = true;
+const DEFAULT_MIRRORED = false;
 
 function cue(line: string) {
   return /^\[[^\]]+\]$/.test(line.trim());
@@ -66,7 +78,13 @@ function formatUpdated(iso: string) {
   return new Intl.DateTimeFormat("it-IT", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Rome" }).format(new Date(iso));
 }
 
-export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
+function initialsFromEmail(email: string | null): string {
+  if (!email) return "AZ";
+  const initials = email.replace(/[^a-zA-Z0-9]/g, "").slice(0, 2).toUpperCase();
+  return initials || "AZ";
+}
+
+export function ScriptStudio({ initialScripts, userEmail = null }: { initialScripts: Script[]; userEmail?: string | null }) {
   const [scripts, setScripts] = useState<Script[]>(initialScripts);
   const [page, setPage] = useState<Page>("library");
   const [activeId, setActiveId] = useState(initialScripts[0]?.id ?? "");
@@ -74,10 +92,10 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
   const [filter, setFilter] = useState<"Tutti" | Format>("Tutti");
   const [teleprompter, setTeleprompter] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(118);
-  const [fontSize, setFontSize] = useState(58);
-  const [mirrored, setMirrored] = useState(false);
-  const [showCues, setShowCues] = useState(true);
+  const [speed, setSpeed] = useState(DEFAULT_SPEED);
+  const [fontSize, setFontSize] = useState(DEFAULT_FONT_SIZE);
+  const [mirrored, setMirrored] = useState(DEFAULT_MIRRORED);
+  const [showCues, setShowCues] = useState(DEFAULT_SHOW_CUES);
   const [progress, setProgress] = useState(0);
   const [cameraOn, setCameraOn] = useState(false);
   const [cameraFacing, setCameraFacing] = useState<"user" | "environment">("user");
@@ -339,6 +357,12 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
     stopCamera();
     if (document.fullscreenElement) document.exitFullscreen?.().catch(() => undefined);
   }
+  function resetTeleprompterPreferences() {
+    setFontSize(DEFAULT_FONT_SIZE);
+    setSpeed(DEFAULT_SPEED);
+    setShowCues(DEFAULT_SHOW_CUES);
+    setMirrored(DEFAULT_MIRRORED);
+  }
   function createScript() {
     const id = crypto.randomUUID();
     const draft = { id, title: "Nuovo copione", body: "Scrivi qui la prima frase.\n\n[PAUSA BREVE]\n\nContinua il tuo copione…", format: "Reel" as Format, status: "Bozza" as Status, source: "Scritto in Script Studio", tags: [] as string[] };
@@ -549,7 +573,7 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
       <section className="workspace">
         <header className="topbar">
           <button className="mobile-logo" onClick={() => setPage("library")}>S</button>
-          <div><small>SCRIPT STUDIO</small><h1>{page === "library" ? "La tua voce, pronta." : page === "editor" ? "Editor di recitazione" : "Connessioni e automazioni"}</h1></div>
+          <div><small>SCRIPT STUDIO</small><h1>{pageTitles[page]}</h1></div>
           <div className="top-actions">
             {page === "library" && <label className="search"><span>⌕</span><input ref={searchInputRef} value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Cerca uno script…"/><kbd>⌘K</kbd></label>}
             <button className="primary" onClick={createScript}><span>＋</span><b>Nuovo script</b></button>
@@ -624,6 +648,28 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
             </article>
           </div>
           <section className="delivery"><header className="section-head"><div><small>INBOX MCP</small><h2>Consegne da rivedere</h2></div></header><p className="empty">MCP non è ancora attivo: le bozze consegnate da Claude e altri agenti compariranno qui, pronte per la revisione.</p></section>
+        </div>}
+
+        {page === "account" && <div className="page account-page">
+          <section className="connections-hero"><div><small>WORKSPACE PERSONALE</small><h2>Il tuo account</h2></div></section>
+          <div className="connection-grid">
+            <article className="connection-card">
+              <header><i>{initialsFromEmail(userEmail)}</i><div><small>IDENTITÀ</small><h3>{userEmail ?? "Anteprima locale"}</h3></div></header>
+              <p>{userEmail ? "Accesso via magic link." : "Nessuna sessione attiva — modalità sviluppo."}</p>
+              <button className="secondary dark" type="button" disabled>↩ Esci</button>
+            </article>
+            <article className="connection-card">
+              <header><i>◷</i><div><small>QUESTO DISPOSITIVO</small><h3>Teleprompter</h3></div></header>
+              <p>Salvate automaticamente su questo dispositivo.</p>
+              <div className="providers">
+                <button type="button" disabled><i>Aa</i><span><strong>Dimensione testo</strong><small>{fontSize}px</small></span></button>
+                <button type="button" disabled><i>▶</i><span><strong>Velocità</strong><small>{speed} ppm</small></span></button>
+                <button type="button" disabled><i>◉</i><span><strong>Cue</strong><small>{showCues ? "Sì" : "No"}</small></span></button>
+                <button type="button" disabled><i>⇋</i><span><strong>Specchio</strong><small>{mirrored ? "Attiva" : "Disattiva"}</small></span></button>
+              </div>
+              <button className="secondary" type="button" onClick={resetTeleprompterPreferences}>↺ Ripristina predefiniti</button>
+            </article>
+          </div>
         </div>}
       </section>
 
