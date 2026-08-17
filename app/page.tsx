@@ -1,10 +1,12 @@
 // app/page.tsx
+import { auth } from "@/auth";
 import { listScripts } from "@/app/actions/scripts";
 import { ScriptStudio } from "@/app/script-studio";
 
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
+  const session = await auth();
   const rows = await listScripts();
   const initialScripts = rows.map((row) => ({
     id: row.id,
@@ -16,5 +18,5 @@ export default async function Page() {
     tags: row.tags,
     updatedAt: new Date(row.updatedAt).toISOString(),
   }));
-  return <ScriptStudio initialScripts={initialScripts} />;
+  return <ScriptStudio initialScripts={initialScripts} userEmail={session?.user?.email ?? null} />;
 }

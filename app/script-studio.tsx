@@ -7,6 +7,7 @@ import {
   duplicateScript as duplicateScriptAction,
   updateScript as updateScriptAction,
 } from "@/app/actions/scripts";
+import { signOutAction } from "@/app/actions/auth";
 
 type Page = "library" | "editor" | "connections" | "account";
 type Format = "Reel" | "Video lungo" | "Lezione";
@@ -661,7 +662,7 @@ export function ScriptStudio({ initialScripts, userEmail = null }: { initialScri
             <article className="connection-card">
               <header><i>{initialsFromEmail(userEmail)}</i><div><small>IDENTITÀ</small><h3>{userEmail ?? "Anteprima locale"}</h3></div></header>
               <p>{userEmail ? "Accesso via magic link." : "Nessuna sessione attiva — modalità sviluppo."}</p>
-              <button className="secondary dark" type="button" disabled>↩ Esci</button>
+              <form action={signOutAction}><button className="secondary dark" type="submit">↩ Esci</button></form>
             </article>
             <article className="connection-card">
               <header><i>◷</i><div><small>QUESTO DISPOSITIVO</small><h3>Teleprompter</h3></div></header>
