@@ -458,7 +458,7 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
       <aside className="sidebar">
         <button className="brand" onClick={() => setPage("library")} aria-label="Script Studio, vai alla libreria"><span className="brand-mark">S</span><span>Script<strong>Studio</strong></span></button>
         <nav className="side-nav" aria-label="Navigazione principale">
-          {navItems.map((item) => <button key={item.page} className={page === item.page ? "active" : ""} onClick={() => setPage(item.page)}><i>{item.icon}</i><span>{item.label}</span>{item.page === "connections" && <b/>}</button>)}
+          {navItems.map((item) => <button key={item.page} className={page === item.page ? "active" : ""} onClick={() => setPage(item.page)}><i>{item.icon}</i><span>{item.label}</span></button>)}
         </nav>
         <div className="sidebar-bottom">
           <article className="mcp-mini"><header><i/><strong>MCP</strong><small>DESIGN TARGET</small></header><p>Claude e altri agenti possono consegnare nuove bozze.</p><button onClick={() => setPage("connections")}>Apri ingressi <span>→</span></button></article>
