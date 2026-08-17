@@ -517,10 +517,10 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
               <footer><button className="play-main" onClick={() => openTeleprompter(active)}><i>▶</i>Apri teleprompter</button><button className="secondary dark" onClick={() => openEditor(active)}>✎ Modifica</button></footer>
             </article>
             <aside className="inbox-card">
-              <header><div><small>▣ IN ARRIVO VIA MCP</small><h3>Una bozza aspetta te</h3></div><b>1</b></header>
-              <div className="incoming"><span className="claude">C</span><div><small>CLAUDE · 4 MIN FA</small><strong>Perché l’AI locale cambia il vantaggio delle PMI</strong><p>Reel · 184 parole · Richiesta revisione</p></div></div>
+              <header><div><small>▣ IN ARRIVO VIA MCP</small><h3>Ancora nessuna consegna</h3></div><b>PRESTO</b></header>
+              <p className="inbox-empty">MCP non è ancora attivo: qui vedrai le bozze consegnate da Claude e altri agenti.</p>
               <div className="route"><span>Claude</span><i>→</i><span>Bozza</span><i>→</i><strong>Revisione umana</strong></div>
-              <button className="review-button" onClick={() => setPage("connections")}>Rivedi la bozza <span>›</span></button>
+              <button className="review-button" onClick={() => setPage("connections")}>Vai a Connessioni <span>›</span></button>
             </aside>
           </section>
 
@@ -576,7 +576,7 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
               <aside className="secret">⚙ <p><strong>Chiavi protette</strong><span>Mai nel browser o nel testo dello script; soltanto nel vault del backend.</span></p></aside>
             </article>
           </div>
-          <section className="delivery"><header className="section-head"><div><small>INBOX MCP</small><h2>Consegne da rivedere</h2></div><b>1 nuova</b></header><article><span className="claude">C</span><div><small>CLAUDE · VIA MCP · 4 MIN FA</small><strong>Perché l’AI locale cambia il vantaggio delle PMI</strong><p>Richiesto: Reel, 60–90 secondi, tono critico e concreto.</p></div><aside><small>VERSIONE</small><strong>Bozza 1</strong></aside><footer><button className="secondary" onClick={() => setToast("Bozza archiviata nella simulazione.")}>Archivia</button><button className="primary" onClick={() => setToast("L’inbox diventerà operativa con il server MCP.")}>Apri e rivedi →</button></footer></article></section>
+          <section className="delivery"><header className="section-head"><div><small>INBOX MCP</small><h2>Consegne da rivedere</h2></div></header><p className="empty">MCP non è ancora attivo: le bozze consegnate da Claude e altri agenti compariranno qui, pronte per la revisione.</p></section>
         </div>}
       </section>
 
