@@ -43,6 +43,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     // esiste ancora), quindi isAllowedEmail(user.email) è il controllo giusto
     // in entrambi i casi, senza bisogno di guardare `email?.verificationRequest`.
     signIn: async ({ user }) => isAllowedEmail(user.email ?? ""),
+    // Usato dal middleware (middleware.ts, `export { auth as middleware }`).
+    // Firma e comportamento di default confermati in
+    // node_modules/next-auth/lib/index.d.ts (`authorized?: (params: { request:
+    // NextRequest; auth: Session | null }) => Awaitable<boolean | NextResponse
+    // | Response | undefined>`) e node_modules/next-auth/lib/index.js
+    // (handleAuth): quando questo callback restituisce `false`, NextAuth
+    // stesso genera il redirect — non serve costruirlo a mano — verso
+    // `config.pages?.signIn ?? "${basePath}/signin"`. Da qui la necessità di
+    // `pages.signIn` sotto: senza, il redirect andrebbe a `/api/auth/signin`
+    // (pagina che questa app non ha) invece che a `/login`.
+    // Il pathname non va controllato qui: `middleware.ts` esclude già via
+    // `matcher` /login, /api/auth/*, e gli asset statici, quindi ogni
+    // richiesta che arriva a questo callback è già una rotta da proteggere.
+    authorized: ({ auth }) => !!auth,
+  },
+  // Pagina di login personalizzata (app/login/page.tsx, task successivo di
+  // questo piano). Richiesta perché `callbacks.authorized` sopra restituisce
+  // `false` per un redirect automatico — vedi commento lì per la fonte esatta
+  // nel codice di next-auth.
+  pages: {
+    signIn: "/login",
   },
   // AUTH_SECRET: NextAuth v5 lo legge automaticamente da process.env.AUTH_SECRET
   // (fallback NEXTAUTH_SECRET) in next-auth/src/lib/env.ts (setEnvDefaults:
