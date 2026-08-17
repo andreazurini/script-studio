@@ -339,7 +339,7 @@ export function ScriptStudio({ initialScripts, userEmail = null }: { initialScri
       .then((row) => {
         setScripts((items) => items.map((script) => script.id === row.id ? { ...script, updatedAt: new Date(row.updatedAt).toISOString() } : script));
       })
-      .catch(() => setToast("Salvataggio non riuscito. Riprova."));
+      .catch(() => setToast("Salvataggio non riuscito. Riprova. Se il problema persiste, ricarica la pagina."));
   }
 
   function openEditor(script: Script) { setActiveId(script.id); setPage("editor"); }
@@ -381,7 +381,7 @@ export function ScriptStudio({ initialScripts, userEmail = null }: { initialScri
       })
       .catch(() => {
         setScripts((items) => items.filter((item) => item.id !== id));
-        setToast("Creazione non riuscita. Riprova.");
+        setToast("Creazione non riuscita. Riprova. Se il problema persiste, ricarica la pagina.");
       });
   }
   function duplicateActive() {
@@ -394,7 +394,7 @@ export function ScriptStudio({ initialScripts, userEmail = null }: { initialScri
         setActiveId(copy.id);
         setPage("editor");
       })
-      .catch(() => setToast("Duplicazione non riuscita. Riprova."));
+      .catch(() => setToast("Duplicazione non riuscita. Riprova. Se il problema persiste, ricarica la pagina."));
   }
   function deleteActive() {
     const target = active;
@@ -406,7 +406,7 @@ export function ScriptStudio({ initialScripts, userEmail = null }: { initialScri
         setScripts((items) => items.filter((script) => script.id !== target.id));
         setActiveId((current) => (current === target.id ? "" : current));
       })
-      .catch(() => setToast("Eliminazione non riuscita. Riprova."));
+      .catch(() => setToast("Eliminazione non riuscita. Riprova. Se il problema persiste, ricarica la pagina."));
   }
   async function installApp() {
     if (!installEvent) { setToast("Dal menu del browser scegli “Installa app” o “Aggiungi alla schermata Home”."); return; }
