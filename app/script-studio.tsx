@@ -28,6 +28,11 @@ const navItems: Array<{ page: Page; icon: string; label: string }> = [
   { page: "connections", icon: "⌁", label: "Connessioni" },
 ];
 
+const mobileNavItems: Array<{ page: Page; icon: string; label: string }> = [
+  ...navItems,
+  { page: "account", icon: "⚙", label: "Account" },
+];
+
 const pageTitles: Record<Page, string> = {
   library: "La tua voce, pronta.",
   editor: "Editor di recitazione",
@@ -673,7 +678,7 @@ export function ScriptStudio({ initialScripts, userEmail = null }: { initialScri
         </div>}
       </section>
 
-      <nav className="mobile-nav">{navItems.map((item) => <button key={item.page} className={page === item.page ? "active" : ""} aria-current={page === item.page ? "page" : undefined} onClick={() => setPage(item.page)}><i>{item.icon}</i><span>{item.label === "Connessioni" ? "Ingressi" : item.label}</span></button>)}<button className="new-mobile" onClick={createScript}>＋</button></nav>
+      <nav className="mobile-nav">{mobileNavItems.map((item) => <button key={item.page} className={page === item.page ? "active" : ""} aria-current={page === item.page ? "page" : undefined} onClick={() => setPage(item.page)}><i>{item.icon}</i><span>{item.label === "Connessioni" ? "Ingressi" : item.label}</span></button>)}<button className="new-mobile" onClick={createScript}>＋</button></nav>
 
       {teleprompter && <div className="teleprompter" role="dialog" aria-modal="true" aria-label={`Teleprompter: ${active.title}`} ref={teleprompterRootRef}>
         <header className="tele-bar">
