@@ -8,6 +8,13 @@
       "when": 1786645878714,
       "tag": "0000_lucky_frog_thor",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786988519669,
+      "tag": "0001_lying_klaw",
+      "breakpoints": true
     }
   ]
 }
