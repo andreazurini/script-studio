@@ -86,6 +86,7 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
   const [toast, setToast] = useState("");
   const [installEvent, setInstallEvent] = useState<Event | null>(null);
   const readerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -203,6 +204,17 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [recording, teleprompter]);
+
+  useEffect(() => {
+    const onSearchShortcut = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "k") return;
+      event.preventDefault();
+      setPage("library");
+      window.setTimeout(() => searchInputRef.current?.focus(), 0);
+    };
+    window.addEventListener("keydown", onSearchShortcut);
+    return () => window.removeEventListener("keydown", onSearchShortcut);
+  }, []);
 
   useEffect(() => {
     const nav = navigator as Navigator & { wakeLock?: { request: (type: "screen") => Promise<{ release: () => Promise<void> }> } };
@@ -458,7 +470,7 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
           <button className="mobile-logo" onClick={() => setPage("library")}>S</button>
           <div><small>SCRIPT STUDIO</small><h1>{page === "library" ? "La tua voce, pronta." : page === "editor" ? "Editor di recitazione" : "Connessioni e automazioni"}</h1></div>
           <div className="top-actions">
-            {page === "library" && <label className="search"><span>⌕</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Cerca uno script…"/><kbd>⌘K</kbd></label>}
+            {page === "library" && <label className="search"><span>⌕</span><input ref={searchInputRef} value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Cerca uno script…"/><kbd>⌘K</kbd></label>}
             <button className="primary" onClick={createScript}><span>＋</span><b>Nuovo script</b></button>
           </div>
         </header>
