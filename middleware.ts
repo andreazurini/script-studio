@@ -24,6 +24,19 @@ export const runtime = "nodejs";
 // middleware doesn't even run for excluded paths, so this is strictly
 // cheaper than a request that runs middleware only to allow itself through.
 //
+// Every alternative below is anchored with `(?:/|$)`, not left as a bare
+// string. A negative lookahead only asserts a *prefix* match — `(?!login)`
+// rejects "login-history" and "login-foo" just as much as it rejects
+// "login", since both start with the literal characters "login". Confirmed
+// live pre-fix: `GET /api/authorize-something` and `GET /login-history` both
+// 404'd with no redirect, i.e. middleware silently treated them as public.
+// `(?:/|$)` forces the character right after the excluded segment to be
+// either `/` (a real sub-path) or nothing (an exact match), so "login-history"
+// no longer satisfies "login" followed by `/` or end-of-string. This is the
+// only defense layer here — callbacks.authorized in auth.ts deliberately does
+// not re-check the pathname — so every entry needs the same anchoring, not
+// just the two that were probed.
+//
 // Excluded:
 // - /login: the sign-in page itself (created in a later task) — must stay
 //   reachable unauthenticated, otherwise no one could ever sign in.
@@ -41,6 +54,6 @@ export const runtime = "nodejs";
 //   it must stay reachable the same way the page that registers it does.
 export const config = {
   matcher: [
-    "/((?!login|api/auth|_next/static|_next/image|favicon\\.ico|favicon\\.svg|app-icon\\.svg|manifest\\.webmanifest|sw\\.js).*)",
+    "/((?!login(?:/|$)|api/auth(?:/|$)|_next/static(?:/|$)|_next/image(?:/|$)|favicon\\.ico(?:/|$)|favicon\\.svg(?:/|$)|app-icon\\.svg(?:/|$)|manifest\\.webmanifest(?:/|$)|sw\\.js(?:/|$)).*)",
   ],
 };
