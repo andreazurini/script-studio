@@ -12,6 +12,12 @@ export type ScriptInput = {
   tags: string[];
 };
 
+export function isAllowedEmail(email: string): boolean {
+  const allowed = process.env.ALLOWED_EMAIL;
+  if (!allowed) return false; // fail-closed: nessuna allowlist configurata significa nessun accesso
+  return email.trim().toLowerCase() === allowed.trim().toLowerCase();
+}
+
 export function parseScriptInput(
   input: Partial<ScriptInput>,
   options: { partial?: boolean } = {},
