@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createScript as createScriptAction, updateScript as updateScriptAction } from "@/app/actions/scripts";
+import {
+  createScript as createScriptAction,
+  deleteScript as deleteScriptAction,
+  duplicateScript as duplicateScriptAction,
+  updateScript as updateScriptAction,
+} from "@/app/actions/scripts";
 
 type Page = "library" | "editor" | "connections";
 type Format = "Reel" | "Video lungo" | "Lezione";
@@ -85,7 +90,9 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
   const [preferencesReady, setPreferencesReady] = useState(false);
   const [toast, setToast] = useState("");
   const [installEvent, setInstallEvent] = useState<Event | null>(null);
+  const [menuOpen, setMenuOpen] = useState<"featured" | "editor" | null>(null);
   const readerRef = useRef<HTMLDivElement>(null);
+  const menuWrapRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const teleprompterRootRef = useRef<HTMLDivElement>(null);
@@ -140,6 +147,21 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
     localStorage.setItem("script-studio-teleprompter-v1", JSON.stringify({ fontSize, speed, showCues, mirrored }));
   }, [fontSize, mirrored, preferencesReady, showCues, speed]);
   useEffect(() => { window.scrollTo(0, 0); }, [page]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDocClick = (event: MouseEvent) => {
+      if (menuWrapRef.current && !menuWrapRef.current.contains(event.target as Node)) setMenuOpen(null);
+    };
+    const onDocKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(null);
+    };
+    document.addEventListener("click", onDocClick);
+    document.addEventListener("keydown", onDocKey);
+    return () => {
+      document.removeEventListener("click", onDocClick);
+      document.removeEventListener("keydown", onDocKey);
+    };
+  }, [menuOpen]);
   useEffect(() => {
     const query = window.matchMedia("(orientation: portrait)");
     const update = () => setPortraitView(query.matches);
@@ -244,6 +266,7 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
       if (teleprompter) return; // don't hijack focus out of the modal
       event.preventDefault();
       setPage("library");
+      setMenuOpen(null);
       window.setTimeout(() => searchInputRef.current?.focus(), 0);
     };
     window.addEventListener("keydown", onSearchShortcut);
@@ -330,6 +353,30 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
         setScripts((items) => items.filter((item) => item.id !== id));
         setToast("Creazione non riuscita. Riprova.");
       });
+  }
+  function duplicateActive() {
+    const target = active;
+    setMenuOpen(null);
+    duplicateScriptAction(target.id)
+      .then((row) => {
+        const copy: Script = { ...row, updatedAt: new Date(row.updatedAt).toISOString() };
+        setScripts((items) => [copy, ...items]);
+        setActiveId(copy.id);
+        setPage("editor");
+      })
+      .catch(() => setToast("Duplicazione non riuscita. Riprova."));
+  }
+  function deleteActive() {
+    const target = active;
+    setMenuOpen(null);
+    const confirmed = window.confirm(`Eliminare "${target.title}"? L'operazione non può essere annullata.`);
+    if (!confirmed) return;
+    deleteScriptAction(target.id)
+      .then(() => {
+        setScripts((items) => items.filter((script) => script.id !== target.id));
+        setActiveId((current) => (current === target.id ? "" : current));
+      })
+      .catch(() => setToast("Eliminazione non riuscita. Riprova."));
   }
   async function installApp() {
     if (!installEvent) { setToast("Dal menu del browser scegli “Installa app” o “Aggiungi alla schermata Home”."); return; }
@@ -512,7 +559,7 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
         {page === "library" && <div className="page library-page">
           <section className="hero-grid">
             <article className="featured">
-              <header><span><i/> PRONTO DA REGISTRARE</span><button>•••</button></header>
+              <header><span><i/> PRONTO DA REGISTRARE</span><div className="options-wrap" ref={menuWrapRef}><button aria-haspopup="true" aria-expanded={menuOpen === "featured"} onClick={() => setMenuOpen((value) => value === "featured" ? null : "featured")}>•••</button>{menuOpen === "featured" && <div className="options-menu"><button onClick={duplicateActive}>Duplica</button><button className="danger" onClick={deleteActive}>Elimina</button></div>}</div></header>
               <div className="featured-copy"><small>{active.format}</small><h2>{active.title}</h2><p>{shortPreview(active.body)}</p><div><span>◷ {duration(active.body)}</span><span>{words(active.body)} parole</span><span>135 parole/min</span></div></div>
               <footer><button className="play-main" onClick={() => openTeleprompter(active)}><i>▶</i>Apri teleprompter</button><button className="secondary dark" onClick={() => openEditor(active)}>✎ Modifica</button></footer>
             </article>
@@ -543,7 +590,7 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
           <div className="editor-bar"><button onClick={() => setPage("library")}>← <span>Libreria</span></button><p>☁ Salvato su Postgres</p><div><button className="secondary" onClick={() => { updateActive({ status: "Pronto" }); setToast("Copione segnato come pronto."); }}>✓ Segna pronto</button><button className="primary" onClick={() => openTeleprompter(active)}>▶ Prova</button></div></div>
           <div className="editor-grid">
             <section className="document">
-              <div className="doc-meta"><div><select value={active.format} onChange={(event) => updateActive({ format: event.target.value as Format })}><option>Reel</option><option>Video lungo</option><option>Lezione</option></select><b className={`status ${statusClass(active.status)}`}><i/>{active.status}</b></div><button>•••</button></div>
+              <div className="doc-meta"><div><select value={active.format} onChange={(event) => updateActive({ format: event.target.value as Format })}><option>Reel</option><option>Video lungo</option><option>Lezione</option></select><b className={`status ${statusClass(active.status)}`}><i/>{active.status}</b></div><div className="options-wrap" ref={menuWrapRef}><button aria-haspopup="true" aria-expanded={menuOpen === "editor"} onClick={() => setMenuOpen((value) => value === "editor" ? null : "editor")}>•••</button>{menuOpen === "editor" && <div className="options-menu"><button onClick={duplicateActive}>Duplica</button><button className="danger" onClick={deleteActive}>Elimina</button></div>}</div></div>
               <input className="title-field" value={active.title} onChange={(event) => updateActive({ title: event.target.value })}/>
               <div className="doc-stats"><span>{words(active.body)} parole</span><i/><span>{duration(active.body)} a 135 parole/min</span><i/><span>Postgres</span></div>
               <textarea value={active.body} onChange={(event) => updateActive({ body: event.target.value })} spellCheck/>

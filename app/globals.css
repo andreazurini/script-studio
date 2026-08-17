@@ -144,7 +144,13 @@ kbd { min-width: 21px; padding: 2px 5px; border: 1px solid #d8dad3; border-botto
 .doc-meta { display: flex; align-items: center; justify-content: space-between; }
 .doc-meta > div { display: flex; align-items: center; gap: 8px; }
 .doc-meta select { height: 28px; padding: 0 24px 0 9px; border: 1px solid #dedfd9; border-radius: 7px; background: #f8f8f5; color: #5e6059; font-size: 8px; font-weight: 650; }
-.doc-meta > button { border: 0; background: transparent; color: #96988f; letter-spacing: 2px; }
+.doc-meta .options-wrap > button { border: 0; background: transparent; color: #96988f; letter-spacing: 2px; }
+.options-wrap { position: relative; }
+.options-menu { position: absolute; z-index: 20; top: calc(100% + 6px); right: 0; min-width: 134px; padding: 6px; display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--line); border-radius: 12px; background: white; box-shadow: var(--shadow); }
+.options-menu button { height: 34px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: #41433d; font-size: 10px; font-weight: 620; text-align: left; letter-spacing: 0; }
+.options-menu button:hover { background: #f2f1ec; }
+.options-menu button.danger { color: #c23b3b; }
+.options-menu button.danger:hover { background: #fbeceb; }
 .title-field { width: 100%; margin-top: 25px; padding: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: clamp(31px, 4vw, 47px); font-weight: 680; line-height: 1.05; letter-spacing: -.055em; }
 .doc-stats { margin-top: 15px; padding-bottom: 18px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #e8e9e3; color: #96988f; font-size: 8px; }
 .doc-stats i { width: 3px; height: 3px; border-radius: 50%; background: #c0c2ba; }
