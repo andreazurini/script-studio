@@ -68,3 +68,8 @@ test("isAllowedEmail rifiuta tutto se ALLOWED_EMAIL è una stringa vuota (fail-c
   withAllowedEmail(t, "");
   assert.equal(isAllowedEmail("info@andreazurini.it"), false);
 });
+
+test("isAllowedEmail rifiuta tutto se ALLOWED_EMAIL è solo spazi bianchi (fail-closed)", (t) => {
+  withAllowedEmail(t, "   ");
+  assert.equal(isAllowedEmail(""), false);
+});

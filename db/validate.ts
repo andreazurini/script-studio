@@ -14,7 +14,7 @@ export type ScriptInput = {
 
 export function isAllowedEmail(email: string): boolean {
   const allowed = process.env.ALLOWED_EMAIL;
-  if (!allowed) return false; // fail-closed: nessuna allowlist configurata significa nessun accesso
+  if (!allowed?.trim()) return false; // fail-closed: nessuna allowlist configurata significa nessun accesso
   return email.trim().toLowerCase() === allowed.trim().toLowerCase();
 }
 
