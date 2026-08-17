@@ -458,7 +458,7 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
       <aside className="sidebar">
         <button className="brand" onClick={() => setPage("library")} aria-label="Script Studio, vai alla libreria"><span className="brand-mark">S</span><span>Script<strong>Studio</strong></span></button>
         <nav className="side-nav" aria-label="Navigazione principale">
-          {navItems.map((item) => <button key={item.page} className={page === item.page ? "active" : ""} onClick={() => setPage(item.page)}><i>{item.icon}</i><span>{item.label}</span></button>)}
+          {navItems.map((item) => <button key={item.page} className={page === item.page ? "active" : ""} aria-current={page === item.page ? "page" : undefined} onClick={() => setPage(item.page)}><i>{item.icon}</i><span>{item.label}</span></button>)}
         </nav>
         <div className="sidebar-bottom">
           <article className="mcp-mini"><header><i/><strong>MCP</strong><small>DESIGN TARGET</small></header><p>Claude e altri agenti possono consegnare nuove bozze.</p><button onClick={() => setPage("connections")}>Apri ingressi <span>→</span></button></article>
@@ -548,7 +548,7 @@ export function ScriptStudio({ initialScripts }: { initialScripts: Script[] }) {
         </div>}
       </section>
 
-      <nav className="mobile-nav">{navItems.map((item) => <button key={item.page} className={page === item.page ? "active" : ""} onClick={() => setPage(item.page)}><i>{item.icon}</i><span>{item.label === "Connessioni" ? "Ingressi" : item.label}</span></button>)}<button className="new-mobile" onClick={createScript}>＋</button></nav>
+      <nav className="mobile-nav">{navItems.map((item) => <button key={item.page} className={page === item.page ? "active" : ""} aria-current={page === item.page ? "page" : undefined} onClick={() => setPage(item.page)}><i>{item.icon}</i><span>{item.label === "Connessioni" ? "Ingressi" : item.label}</span></button>)}<button className="new-mobile" onClick={createScript}>＋</button></nav>
 
       {teleprompter && <div className="teleprompter" role="dialog" aria-modal="true" aria-label={`Teleprompter: ${active.title}`}>
         <header className="tele-bar">
