@@ -69,6 +69,7 @@ kbd { min-width: 21px; padding: 2px 5px; border: 1px solid #d8dad3; border-botto
 .secondary:hover { background: #fafaf8; border-color: #bfc1b9; }
 .secondary.dark { border-color: #3b3d37; background: #252722; color: #e8e9e2; }
 .secondary.dark:hover { background: #30322c; }
+.secondary:disabled { opacity: .38; cursor: not-allowed; }
 .mobile-logo { display: none; }
 .page { max-width: 1600px; margin: 0 auto; padding: 32px 40px 65px; }
 
@@ -216,6 +217,7 @@ kbd { min-width: 21px; padding: 2px 5px; border: 1px solid #d8dad3; border-botto
 .providers { margin-top: 19px; display: grid; gap: 8px; }
 .providers button { min-height: 58px; padding: 9px 11px; display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 10px; border: 1px solid #e0e1db; border-radius: 12px; background: white; text-align: left; }
 .providers button:hover { border-color: #bebfb8; background: #fafaf8; }
+.providers button:disabled { opacity: .38; cursor: not-allowed; }
 .providers button > i { width: 37px; height: 37px; display: grid; place-items: center; border-radius: 10px; background: #1f211d; color: white; font-family: Georgia, serif; font-style: normal; font-weight: 750; }
 .providers button:first-child > i { background: #ddcbae; color: #4f412f; }
 .providers button:last-child > i { background: #fff4bd; color: #795f00; }
