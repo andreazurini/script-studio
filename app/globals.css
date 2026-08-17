@@ -35,7 +35,6 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .side-nav button:hover, .side-nav button.active { color: white; background: #23241f; }
 .side-nav button.active::before { content: ""; position: absolute; left: 0; width: 3px; height: 23px; border-radius: 0 3px 3px 0; background: var(--yellow); }
 .side-nav button.active > i { color: var(--yellow); }
-.side-nav button > b { width: 7px; height: 7px; margin-left: auto; border-radius: 50%; background: var(--yellow); box-shadow: 0 0 0 4px rgba(255,204,0,.1); }
 .sidebar-bottom { margin-top: auto; display: grid; gap: 11px; }
 .mcp-mini { padding: 14px; border: 1px solid #2d2f2a; border-radius: 15px; background: #1b1c19; }
 .mcp-mini header { display: flex; align-items: center; gap: 8px; }
